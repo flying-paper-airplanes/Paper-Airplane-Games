@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Airplane — Private E2EE Messaging</title>
+    <meta name="description" content="Zero-knowledge, peer-to-peer end-to-end encrypted messaging service. Keys never leave your browser.">
+    <link rel="icon" type="image/x-icon" href="images/palogo.ico">
+
+    <!-- Theme initialization (Dark Mode default) -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('pa-theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Rubik:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+
+    <!-- Base Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- E2EE Chat Specific Styles -->
+    <style>
+        /* Chat Layout & Components */
+        .chat-app-container {
+            max-width: 980px;
+            margin: 1.5rem auto 3rem;
+            padding: 0 1rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        /* Lobby Card */
+        .lobby-panel {
+            background: var(--pa-surface);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-lg);
+            padding: 2.25rem;
+            box-shadow: var(--shadow-md);
+            max-width: 620px;
+            margin: 1rem auto;
+            width: 100%;
+        }
+
+        .lobby-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background: rgba(98, 186, 72, 0.12);
+            border: 1px solid rgba(98, 186, 72, 0.35);
+            border-radius: var(--radius-pill);
+            color: var(--pa-green);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.25rem;
+        }
+
+        .lobby-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .lobby-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .lobby-desc {
+            color: var(--pa-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--pa-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-hint {
+            font-size: 0.78rem;
+            color: var(--pa-text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--pa-surface-elevated);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-md);
+            color: var(--pa-text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .form-input:focus {
+            border-color: var(--pa-border-focus);
+            box-shadow: 0 0 0 2px rgba(26, 156, 214, 0.2);
+        }
+
+        .input-group-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary-action {
+            padding: 0.75rem 1rem;
+            background: var(--pa-surface-elevated);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-md);
+            color: var(--pa-text-primary);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-secondary-action:hover {
+            background: var(--pa-surface-hover);
+            border-color: var(--pa-border-focus);
+        }
+
+        .btn-primary-action {
+            width: 100%;
+            padding: 0.9rem 1.5rem;
+            background: var(--pa-blue);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: opacity var(--transition-fast), transform var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-action:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary-action:active {
+            transform: translateY(0);
+        }
+
+        /* Security info callout */
+        .security-callout {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(26, 156, 214, 0.08);
+            border: 1px solid rgba(26, 156, 214, 0.25);
+            border-radius: var(--radius-md);
+            font-size: 0.82rem;
+            color: var(--pa-text-secondary);
+            line-height: 1.5;
+        }
+
+        .security-callout strong {
+            color: var(--pa-text-primary);
+        }
+
+        /* --- Active Chat Window --- */
+        .chat-room-panel {
+            display: none;
+            background: var(--pa-surface);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            flex-direction: column;
+            height: 78vh;
+            min-height: 520px;
+        }
+
+        .chat-header {
+            padding: 0.85rem 1.25rem;
+            background: var(--pa-surface-elevated);
+            border-bottom: 1px solid var(--pa-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .chat-room-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .encryption-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            background: rgba(98, 186, 72, 0.15);
+            border: 1px solid rgba(98, 186, 72, 0.4);
+            border-radius: var(--radius-pill);
+            color: var(--pa-green);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .connection-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--pa-red);
+            display: inline-block;
+        }
+
+        .connection-status-dot.connected {
+            background: var(--pa-green);
+            box-shadow: 0 0 6px var(--pa-green);
+        }
+
+        .connection-status-dot.connecting {
+            background: var(--pa-yellow);
+        }
+
+        .room-title-text {
+            font-size: 1.15rem;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            color: var(--pa-text-primary);
+        }
+
+        .chat-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-action-btn {
+            padding: 0.45rem 0.85rem;
+            background: var(--pa-surface);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-sm);
+            color: var(--pa-text-primary);
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all var(--transition-fast);
+        }
+
+        .chat-action-btn:hover {
+            border-color: var(--pa-border-focus);
+            background: var(--pa-surface-hover);
+        }
+
+        .chat-action-btn.danger {
+            color: var(--pa-red);
+            border-color: rgba(226, 56, 60, 0.3);
+        }
+
+        .chat-action-btn.danger:hover {
+            background: rgba(226, 56, 60, 0.1);
+            border-color: var(--pa-red);
+        }
+
+        /* Message Stream */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            background: var(--pa-bg);
+            scroll-behavior: smooth;
+        }
+
+        .system-pill {
+            align-self: center;
+            padding: 0.3rem 0.85rem;
+            background: var(--pa-surface-elevated);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-pill);
+            color: var(--pa-text-muted);
+            font-size: 0.78rem;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .message-bubble-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 72%;
+        }
+
+        .message-bubble-wrapper.outgoing {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-bubble-wrapper.incoming {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .message-author {
+            font-size: 0.75rem;
+            color: var(--pa-text-muted);
+            margin-bottom: 0.2rem;
+            padding: 0 0.3rem;
+            font-weight: 500;
+        }
+
+        .message-bubble {
+            padding: 0.65rem 0.95rem;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            word-break: break-word;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .outgoing .message-bubble {
+            background: var(--pa-blue);
+            color: #ffffff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .incoming .message-bubble {
+            background: var(--pa-surface-elevated);
+            color: var(--pa-text-primary);
+            border: 1px solid var(--pa-border);
+            border-bottom-left-radius: 2px;
+        }
+
+        .message-footer {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.2rem;
+            padding: 0 0.3rem;
+            font-size: 0.7rem;
+            color: var(--pa-text-muted);
+        }
+
+        .message-error {
+            background: rgba(226, 56, 60, 0.15) !important;
+            border: 1px solid var(--pa-red) !important;
+            color: var(--pa-red) !important;
+        }
+
+        /* Message Input Area */
+        .chat-input-bar {
+            padding: 0.85rem 1.25rem;
+            background: var(--pa-surface-elevated);
+            border-top: 1px solid var(--pa-border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-text-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--pa-surface);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-md);
+            color: var(--pa-text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color var(--transition-fast);
+        }
+
+        .chat-text-input:focus {
+            border-color: var(--pa-border-focus);
+        }
+
+        .chat-send-btn {
+            padding: 0.75rem 1.25rem;
+            background: var(--pa-blue);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: opacity var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .chat-send-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Modal Dialog */
+        .pa-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .pa-modal-backdrop.open {
+            display: flex;
+        }
+
+        .pa-modal {
+            background: var(--pa-surface);
+            border: 1px solid var(--pa-border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .pa-modal-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .fingerprint-box {
+            background: var(--pa-bg);
+            border: 1px dashed var(--pa-border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            word-break: break-all;
+            color: var(--pa-yellow);
+            margin: 1rem 0;
+            text-align: center;
+            user-select: all;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--pa-surface-elevated);
+            border: 1px solid var(--pa-border);
+            color: var(--pa-text-primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-hover);
+            z-index: 2000;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all var(--transition-normal);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 640px) {
+            .lobby-panel {
+                padding: 1.5rem;
+            }
+            .chat-room-panel {
+                height: 85vh;
+            }
+            .message-bubble-wrapper {
+                max-width: 88%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Site Header -->
+    <header class="site-header">
+        <div class="header-accent-bar" aria-hidden="true"></div>
+        <div class="header-inner">
+            <a href="index.html" class="brand-logo-btn" title="Paper Airplane Home" aria-label="Paper Airplane Home">
+                <div class="brand-icon-wrapper">
+                    <img src="images/palogo.png" alt="Paper Airplane Logo" class="brand-icon">
+                </div>
+                <div class="brand-text-wrapper">
+                    <span class="brand-name-top">Paper</span>
+                    <span class="brand-name-bottom">Airplane</span>
+                </div>
+            </a>
+
+            <div class="header-actions">
+                <a href="index.html" class="header-link-btn" title="Back to Games">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Games</span>
+                </a>
+
+                <!-- Dark Mode Toggle Switch -->
+                <button id="themeToggle" class="theme-toggle-switch" role="switch" aria-checked="true" aria-label="Toggle dark mode" title="Switch to light mode">
+                    <span class="switch-icon switch-icon-sun" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </span>
+                    <span class="switch-thumb"></span>
+                    <span class="switch-icon switch-icon-moon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="chat-app-container">
+        <!-- VIEW 1: LOBBY / SETUP -->
+        <div id="lobbyView" class="lobby-panel">
+            <div class="lobby-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Zero-Knowledge E2EE</span>
+            </div>
+            <h1 class="lobby-title">Private Secure Chat</h1>
+            <p class="lobby-desc">
+                Messages are encrypted directly in your browser using <strong>AES-GCM-256</strong> before transmission. The relay server cannot read your messages or access your keys.
+            </p>
+
+            <form id="joinForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label class="form-label" for="usernameInput">Your Handle / Nickname</label>
+                    <input type="text" id="usernameInput" class="form-input" placeholder="e.g. Alice" required maxlength="30">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="roomIdInput">Room Name or ID</label>
+                    <div class="input-group-row">
+                        <input type="text" id="roomIdInput" class="form-input" placeholder="e.g. secret-room-88" required maxlength="64">
+                        <button type="button" id="btnRandomRoom" class="btn-secondary-action" title="Generate random room">
+                            🎲 Random
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="keyInput">Encryption Key / Passphrase</label>
+                    <div class="input-group-row">
+                        <input type="password" id="keyInput" class="form-input" placeholder="Shared secret passphrase or random 256-bit key" required>
+                        <button type="button" id="btnGenerateKey" class="btn-secondary-action" title="Generate fresh 256-bit AES key">
+                            🔑 Generate
+                        </button>
+                    </div>
+                    <span class="form-hint">Anyone with this room name and passphrase can decrypt messages.</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="serverUrlInput">Ubuntu Relay Server URL (WSS)</label>
+                    <input type="text" id="serverUrlInput" class="form-input" placeholder="wss://relay.yourdomain.com:8080" required>
+                    <span class="form-hint">Your self-hosted Ubuntu WebSocket relay address (use <code>ws://localhost:8080</code> for local dev).</span>
+                </div>
+
+                <button type="button" id="btnJoinRoom" class="btn-primary-action">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span>Connect & Enter Room</span>
+                </button>
+            </form>
+
+            <div class="security-callout">
+                🛡️ <strong>Zero-Trust Guarantee:</strong> The encryption key is held only in browser memory and in the URL hash (<code>#...</code>). The hash is never sent to GitHub Pages or to the relay server.
+            </div>
+        </div>
+
+        <!-- VIEW 2: ACTIVE CHAT ROOM -->
+        <div id="chatView" class="chat-room-panel">
+            <div class="chat-header">
+                <div class="chat-room-info">
+                    <span class="connection-status-dot" id="connectionDot" title="Disconnected"></span>
+                    <span class="room-title-text" id="activeRoomLabel">#room</span>
+                    <span class="encryption-badge" title="Authenticated AES-GCM 256-bit encryption">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>E2EE Active</span>
+                    </span>
+                </div>
+
+                <div class="chat-actions">
+                    <button type="button" id="btnCopyInvite" class="chat-action-btn" title="Copy invite link containing room and key hash">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                        </svg>
+                        <span>Copy Invite Link</span>
+                    </button>
+                    <button type="button" id="btnShowFingerprint" class="chat-action-btn" title="View safety fingerprint">
+                        <span>🔍 Fingerprint</span>
+                    </button>
+                    <button type="button" id="btnLeaveRoom" class="chat-action-btn danger" title="Leave room and wipe key from memory">
+                        <span>Leave</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Scroll Area -->
+            <div class="chat-messages" id="messagesContainer">
+                <div class="system-pill">
+                    Room initialized. Messages sent here are end-to-end encrypted with your local key.
+                </div>
+            </div>
+
+            <!-- Chat Input Bar -->
+            <form id="chatForm" class="chat-input-bar" onsubmit="return false;">
+                <input type="text" id="chatMessageInput" class="chat-text-input" placeholder="Type an encrypted message..." autocomplete="off">
+                <button type="submit" id="btnSendMessage" class="chat-send-btn">
+                    <span>Send</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Fingerprint / Verification Modal -->
+    <div id="fingerprintModal" class="pa-modal-backdrop">
+        <div class="pa-modal">
+            <h2 class="pa-modal-title">Key Safety Fingerprint</h2>
+            <p class="lobby-desc" style="margin-bottom: 0.5rem;">
+                Compare this safety number with other members in your room (e.g. over a phone call or in person) to verify nobody has tampered with your keys:
+            </p>
+            <div class="fingerprint-box" id="fingerprintDisplay">Generating...</div>
+            <button type="button" class="btn-primary-action" id="btnCloseModal" style="margin-top: 0.5rem;">Done</button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">Notice message</div>
+
+    <!-- Application Script (Pure WebCrypto + WebSockets) -->
+    <script>
+        // --- Web Crypto Primitives (Zero Dependencies) ---
+        const CryptoEngine = {
+            // Converts Uint8Array to base64 string
+            toBase64(buf) {
+                let binary = '';
+                const bytes = new Uint8Array(buf);
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return btoa(binary);
+            },
+
+            // Converts base64 string to Uint8Array
+            fromBase64(str) {
+                const binary = atob(str);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                return bytes;
+            },
+
+            // Generates a random 256-bit raw key as base64
+            generateRandomKey() {
+                const bytes = crypto.getRandomValues(new Uint8Array(32));
+                return this.toBase64(bytes);
+            },
+
+            // Derives a 256-bit AES-GCM key from any passphrase or base64 key
+            async deriveKey(secretInput, roomId) {
+                const enc = new TextEncoder();
+                // If it's a 32-byte base64 key, import directly
+                try {
+                    const raw = this.fromBase64(secretInput);
+                    if (raw.byteLength === 32) {
+                        return await crypto.subtle.importKey(
+                            "raw",
+                            raw,
+                            { name: "AES-GCM" },
+                            true,
+                            ["encrypt", "decrypt"]
+                        );
+                    }
+                } catch (e) {
+                    // Not valid base64 32-byte, proceed with PBKDF2 passphrase derivation
+                }
+
+                // PBKDF2 key derivation from user passphrase + room salt
+                const keyMaterial = await crypto.subtle.importKey(
+                    "raw",
+                    enc.encode(secretInput),
+                    { name: "PBKDF2" },
+                    false,
+                    ["deriveKey"]
+                );
+
+                const salt = enc.encode("pa-e2ee-room-salt:" + roomId);
+
+                return await crypto.subtle.deriveKey(
+                    {
+                        name: "PBKDF2",
+                        salt: salt,
+                        iterations: 120000,
+                        hash: "SHA-256"
+                    },
+                    keyMaterial,
+                    { name: "AES-GCM", length: 256 },
+                    true,
+                    ["encrypt", "decrypt"]
+                );
+            },
+
+            // Calculates a human-readable SHA-256 fingerprint of the key
+            async computeFingerprint(cryptoKey) {
+                const raw = await crypto.subtle.exportKey("raw", cryptoKey);
+                const hash = await crypto.subtle.digest("SHA-256", raw);
+                const hex = Array.from(new Uint8Array(hash))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('')
+                    .toUpperCase();
+                // Format in chunks of 4: ABCD 1234 ...
+                return hex.match(/.{1,4}/g).slice(0, 8).join(' ');
+            },
+
+            // Encrypts plaintext string using AES-GCM with fresh 96-bit IV
+            async encrypt(cryptoKey, plainText) {
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+                const encoded = new TextEncoder().encode(plainText);
+                const ciphertext = await crypto.subtle.encrypt(
+                    { name: "AES-GCM", iv: iv },
+                    cryptoKey,
+                    encoded
+                );
+                return {
+                    iv: this.toBase64(iv),
+                    payload: this.toBase64(ciphertext)
+                };
+            },
+
+            // Decrypts ciphertext buffer using AES-GCM
+            async decrypt(cryptoKey, ivB64, payloadB64) {
+                const iv = this.fromBase64(ivB64);
+                const ciphertext = this.fromBase64(payloadB64);
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv: iv },
+                    cryptoKey,
+                    ciphertext
+                );
+                return new TextDecoder().decode(decrypted);
+            }
+        };
+
+        // --- Application State ---
+        const AppState = {
+            ws: null,
+            activeKey: null,
+            fingerprint: '',
+            username: '',
+            roomId: '',
+            serverUrl: '',
+            reconnectTimer: null
+        };
+
+        // --- DOM Elements ---
+        const dom = {
+            lobbyView: document.getElementById('lobbyView'),
+            chatView: document.getElementById('chatView'),
+            usernameInput: document.getElementById('usernameInput'),
+            roomIdInput: document.getElementById('roomIdInput'),
+            keyInput: document.getElementById('keyInput'),
+            serverUrlInput: document.getElementById('serverUrlInput'),
+            btnRandomRoom: document.getElementById('btnRandomRoom'),
+            btnGenerateKey: document.getElementById('btnGenerateKey'),
+            btnJoinRoom: document.getElementById('btnJoinRoom'),
+            activeRoomLabel: document.getElementById('activeRoomLabel'),
+            connectionDot: document.getElementById('connectionDot'),
+            btnCopyInvite: document.getElementById('btnCopyInvite'),
+            btnShowFingerprint: document.getElementById('btnShowFingerprint'),
+            btnLeaveRoom: document.getElementById('btnLeaveRoom'),
+            messagesContainer: document.getElementById('messagesContainer'),
+            chatForm: document.getElementById('chatForm'),
+            chatMessageInput: document.getElementById('chatMessageInput'),
+            btnSendMessage: document.getElementById('btnSendMessage'),
+            fingerprintModal: document.getElementById('fingerprintModal'),
+            fingerprintDisplay: document.getElementById('fingerprintDisplay'),
+            btnCloseModal: document.getElementById('btnCloseModal'),
+            toast: document.getElementById('toast'),
+            themeToggle: document.getElementById('themeToggle')
+        };
+
+        // --- Toast helper ---
+        function showToast(text, duration = 3000) {
+            dom.toast.textContent = text;
+            dom.toast.classList.add('show');
+            setTimeout(() => dom.toast.classList.remove('show'), duration);
+        }
+
+        // --- Sound or Haptic cues (Optional) ---
+        function updateConnectionUI(status) {
+            dom.connectionDot.className = 'connection-status-dot ' + status;
+            if (status === 'connected') {
+                dom.connectionDot.setAttribute('title', 'Connected to relay server (WSS)');
+                dom.btnSendMessage.disabled = false;
+            } else if (status === 'connecting') {
+                dom.connectionDot.setAttribute('title', 'Connecting to relay...');
+                dom.btnSendMessage.disabled = true;
+            } else {
+                dom.connectionDot.setAttribute('title', 'Disconnected from relay');
+                dom.btnSendMessage.disabled = true;
+            }
+        }
+
+        // --- Safe DOM Message Appender (strictly avoids innerHTML to block XSS) ---
+        function appendMessage({ sender, text, timestamp, isSelf, isError = false }) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `message-bubble-wrapper ${isSelf ? 'outgoing' : 'incoming'}`;
+
+            if (!isSelf) {
+                const author = document.createElement('div');
+                author.className = 'message-author';
+                author.textContent = sender || 'Anonymous';
+                wrapper.appendChild(author);
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble' + (isError ? ' message-error' : '');
+            bubble.textContent = text;
+            wrapper.appendChild(bubble);
+
+            const footer = document.createElement('div');
+            footer.className = 'message-footer';
+            const timeStr = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            footer.textContent = (isSelf ? 'You • ' : '') + timeStr;
+            wrapper.appendChild(footer);
+
+            dom.messagesContainer.appendChild(wrapper);
+            dom.messagesContainer.scrollTop = dom.messagesContainer.scrollHeight;
+        }
+
+        function appendSystemNotice(text) {
+            const pill = document.createElement('div');
+            pill.className = 'system-pill';
+            pill.textContent = text;
+            dom.messagesContainer.appendChild(pill);
+            dom.messagesContainer.scrollTop = dom.messagesContainer.scrollHeight;
+        }
+
+        // --- Parse URL Hash parameters (#room=...&key=...&server=...) ---
+        function parseUrlHash() {
+            if (!window.location.hash || window.location.hash.length <= 1) return null;
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const room = params.get('room');
+            const key = params.get('key');
+            const server = params.get('server');
+            return { room, key, server };
+        }
+
+        // --- Connect to Relay Server via WebSocket ---
+        function connectRelay() {
+            if (AppState.ws) {
+                try { AppState.ws.close(); } catch (e) {}
+            }
+
+            updateConnectionUI('connecting');
+            appendSystemNotice(`Connecting to relay: ${AppState.serverUrl}...`);
+
+            try {
+                AppState.ws = new WebSocket(AppState.serverUrl);
+            } catch (err) {
+                updateConnectionUI('disconnected');
+                appendSystemNotice(`Failed to open WebSocket: ${err.message}`);
+                return;
+            }
+
+            AppState.ws.onopen = () => {
+                updateConnectionUI('connected');
+                appendSystemNotice(`Connected to relay. Joining room #${AppState.roomId}...`);
+                // Register room subscription with relay
+                AppState.ws.send(JSON.stringify({
+                    type: 'join',
+                    room: AppState.roomId
+                }));
+            };
+
+            AppState.ws.onmessage = async (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'msg') {
+                        // Attempt E2EE Decryption
+                        try {
+                            const decryptedJson = await CryptoEngine.decrypt(AppState.activeKey, msg.iv, msg.payload);
+                            const payloadObj = JSON.parse(decryptedJson);
+                            appendMessage({
+                                sender: payloadObj.sender,
+                                text: payloadObj.text,
+                                timestamp: payloadObj.timestamp || msg.timestamp,
+                                isSelf: payloadObj.sender === AppState.username
+                            });
+                        } catch (decryptErr) {
+                            appendMessage({
+                                sender: 'Unknown',
+                                text: '⚠️ [Ciphertext received but decryption failed. Mismatched key or corrupted message]',
+                                timestamp: msg.timestamp,
+                                isSelf: false,
+                                isError: true
+                            });
+                        }
+                    } else if (msg.type === 'presence') {
+                        if (msg.event === 'joined') {
+                            appendSystemNotice('A peer joined the room.');
+                        } else if (msg.event === 'left') {
+                            appendSystemNotice('A peer disconnected.');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Failed to parse relay message:', err);
+                }
+            };
+
+            AppState.ws.onerror = (err) => {
+                console.error('WebSocket Error:', err);
+                updateConnectionUI('disconnected');
+            };
+
+            AppState.ws.onclose = () => {
+                updateConnectionUI('disconnected');
+                appendSystemNotice('Disconnected from relay server.');
+            };
+        }
+
+        // --- Send Outgoing Encrypted Message ---
+        async function sendMessage() {
+            const text = dom.chatMessageInput.value.trim();
+            if (!text || !AppState.ws || AppState.ws.readyState !== WebSocket.OPEN) return;
+
+            dom.chatMessageInput.value = '';
+
+            try {
+                const plaintextPayload = JSON.stringify({
+                    text: text,
+                    sender: AppState.username,
+                    timestamp: Date.now()
+                });
+
+                // Encrypt client-side
+                const encrypted = await CryptoEngine.encrypt(AppState.activeKey, plaintextPayload);
+
+                // Send blind envelope to relay
+                AppState.ws.send(JSON.stringify({
+                    type: 'msg',
+                    room: AppState.roomId,
+                    iv: encrypted.iv,
+                    payload: encrypted.payload,
+                    timestamp: Date.now()
+                }));
+
+                // Immediately display locally
+                appendMessage({
+                    sender: AppState.username,
+                    text: text,
+                    timestamp: Date.now(),
+                    isSelf: true
+                });
+            } catch (err) {
+                console.error('Encryption failed:', err);
+                showToast('Failed to encrypt message: ' + err.message);
+            }
+        }
+
+        // --- Join Room Action ---
+        async function joinRoom() {
+            const username = dom.usernameInput.value.trim();
+            const roomId = dom.roomIdInput.value.trim();
+            const secret = dom.keyInput.value.trim();
+            const serverUrl = dom.serverUrlInput.value.trim();
+
+            if (!username) {
+                showToast('Please enter your nickname / handle');
+                dom.usernameInput.focus();
+                return;
+            }
+            if (!roomId) {
+                showToast('Please enter a room name');
+                dom.roomIdInput.focus();
+                return;
+            }
+            if (!secret) {
+                showToast('Please enter or generate a key');
+                dom.keyInput.focus();
+                return;
+            }
+            if (!serverUrl) {
+                showToast('Please enter your Ubuntu relay server URL');
+                dom.serverUrlInput.focus();
+                return;
+            }
+
+            // Save persistent preferences
+            localStorage.setItem('pa_chat_username', username);
+            localStorage.setItem('pa_chat_server', serverUrl);
+
+            AppState.username = username;
+            AppState.roomId = roomId;
+            AppState.serverUrl = serverUrl;
+
+            showToast('Deriving encryption key...');
+
+            try {
+                // Derive key & compute fingerprint
+                AppState.activeKey = await CryptoEngine.deriveKey(secret, roomId);
+                AppState.fingerprint = await CryptoEngine.computeFingerprint(AppState.activeKey);
+
+                // Update URL hash with room, key, and server for shareability (hash never touches server!)
+                window.location.hash = `room=${encodeURIComponent(roomId)}&key=${encodeURIComponent(secret)}&server=${encodeURIComponent(serverUrl)}`;
+
+                // Switch UI views
+                dom.lobbyView.style.display = 'none';
+                dom.chatView.style.display = 'flex';
+                dom.activeRoomLabel.textContent = '#' + roomId;
+                dom.messagesContainer.innerHTML = '';
+                appendSystemNotice(`Entered room #${roomId}. End-to-end encryption active.`);
+
+                // Connect to server
+                connectRelay();
+            } catch (err) {
+                console.error('Key derivation error:', err);
+                showToast('Error setting up encryption: ' + err.message);
+            }
+        }
+
+        // --- Leave Room Action ---
+        function leaveRoom() {
+            if (AppState.ws) {
+                try { AppState.ws.close(); } catch (e) {}
+                AppState.ws = null;
+            }
+            AppState.activeKey = null;
+            AppState.fingerprint = '';
+            AppState.roomId = '';
+
+            // Wipe hash from address bar
+            history.replaceState(null, '', window.location.pathname);
+
+            dom.chatView.style.display = 'none';
+            dom.lobbyView.style.display = 'block';
+            showToast('Left room. Session key wiped from memory.');
+        }
+
+        // --- Event Listeners & Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Restore saved preferences
+            const savedUsername = localStorage.getItem('pa_chat_username') || '';
+            const savedServer = localStorage.getItem('pa_chat_server') || 'ws://localhost:8080';
+
+            dom.usernameInput.value = savedUsername;
+            dom.serverUrlInput.value = savedServer;
+
+            // Generate Random Room ID helper
+            dom.btnRandomRoom.addEventListener('click', () => {
+                const rand = 'room-' + Math.random().toString(36).substring(2, 10);
+                dom.roomIdInput.value = rand;
+            });
+
+            // Generate Random AES Key helper
+            dom.btnGenerateKey.addEventListener('click', () => {
+                dom.keyInput.value = CryptoEngine.generateRandomKey();
+                dom.keyInput.type = 'text'; // momentarily visible so user can verify
+                showToast('Generated fresh 256-bit AES key');
+            });
+
+            // Join Room button
+            dom.btnJoinRoom.addEventListener('click', joinRoom);
+
+            // Chat input submit
+            dom.chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                sendMessage();
+            });
+
+            // Leave button
+            dom.btnLeaveRoom.addEventListener('click', leaveRoom);
+
+            // Copy Invite Link
+            dom.btnCopyInvite.addEventListener('click', () => {
+                const inviteUrl = window.location.href;
+                navigator.clipboard.writeText(inviteUrl).then(() => {
+                    showToast('Invite link copied! Share it securely.');
+                }).catch(() => {
+                    prompt('Copy this invite URL:', inviteUrl);
+                });
+            });
+
+            // Show Safety Fingerprint Modal
+            dom.btnShowFingerprint.addEventListener('click', () => {
+                dom.fingerprintDisplay.textContent = AppState.fingerprint || 'Not Available';
+                dom.fingerprintModal.classList.add('open');
+            });
+
+            dom.btnCloseModal.addEventListener('click', () => {
+                dom.fingerprintModal.classList.remove('open');
+            });
+
+            dom.fingerprintModal.addEventListener('click', (e) => {
+                if (e.target === dom.fingerprintModal) {
+                    dom.fingerprintModal.classList.remove('open');
+                }
+            });
+
+            // Theme toggle sync
+            const html = document.documentElement;
+            function updateThemeUI(theme) {
+                const isDark = theme === 'dark';
+                dom.themeToggle.setAttribute('aria-checked', isDark ? 'true' : 'false');
+                dom.themeToggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+            updateThemeUI(html.getAttribute('data-theme') || 'dark');
+
+            dom.themeToggle.addEventListener('click', () => {
+                const active = html.getAttribute('data-theme') || 'dark';
+                const next = active === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', next);
+                localStorage.setItem('pa-theme', next);
+                updateThemeUI(next);
+            });
+
+            // Auto-populate from URL hash if provided
+            const hashParams = parseUrlHash();
+            if (hashParams) {
+                if (hashParams.room) dom.roomIdInput.value = hashParams.room;
+                if (hashParams.key) dom.keyInput.value = hashParams.key;
+                if (hashParams.server) dom.serverUrlInput.value = hashParams.server;
+                showToast('Loaded room & encryption settings from invite link!');
+            }
+        });
+    </script>
+</body>
+</html>
