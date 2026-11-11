@@ -1,0 +1,830 @@
+/* ==========================================================================
+   Paper Airplane — Modern Minimalist Design System
+   Brand Guide Compliant
+   Dark Mode Default with Theme Switcher
+   ========================================================================== */
+
+/* --- Custom Properties / Color Palette from Brand Guide --- */
+:root {
+  /* Brand Gradient Colors (Strict Order: Green -> Yellow -> Orange -> Red -> Purple -> Blue) */
+  --pa-green: #62BA48;
+  --pa-yellow: #F9B621;
+  --pa-orange: #F58220;
+  --pa-red: #E2383C;
+  --pa-purple: #953E97;
+  --pa-blue: #1A9CD6;
+
+  /* Neutrals from Brand Guide */
+  --pa-gray-light: #DEDFE0;
+  --pa-gray-medium: #BBBCBF;
+  --pa-gray-dark: #88898C;
+
+  /* Official Brand Gradient */
+  --pa-brand-gradient: linear-gradient(
+    90deg,
+    #62BA48 0%,
+    #F9B621 20%,
+    #F58220 40%,
+    #E2383C 60%,
+    #953E97 80%,
+    #1A9CD6 100%
+  );
+
+  /* Typography */
+  --font-heading: "Rajdhani", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: "Rubik", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Layout */
+  --container-max-width: 1200px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Dark Theme (Enabled by Default) --- */
+:root,
+html[data-theme="dark"] {
+  --pa-bg: #0E1013;
+  --pa-surface: #17191E;
+  --pa-surface-elevated: #1F2229;
+  --pa-surface-hover: #232730;
+  --pa-border: #282C35;
+  --pa-border-subtle: #20232A;
+  --pa-border-focus: #1A9CD6;
+  --pa-text-primary: #FFFFFF;
+  --pa-text-secondary: #BBBCBF;
+  --pa-text-muted: #88898C;
+  --header-bg: rgba(14, 16, 19, 0.88);
+  --card-media-bg: #121417;
+  --cta-btn-bg: #1F2228;
+  --cta-btn-text: #FFFFFF;
+  --cta-btn-border: #2B2F38;
+  --play-overlay-bg: rgba(23, 25, 30, 0.94);
+  --play-overlay-text: #FFFFFF;
+  --pill-bg: #17191E;
+  --pill-border: #282C35;
+  --switch-track: #20232A;
+  --switch-thumb: #FFFFFF;
+  --footer-bg: #0B0D0F;
+  --footer-border: #202329;
+  --footer-divider: #1A1D23;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 24px 44px -8px rgba(0, 0, 0, 0.65), 0 8px 20px -4px rgba(0, 0, 0, 0.45);
+}
+
+/* --- Light Theme (Activated via Switch) --- */
+html[data-theme="light"] {
+  --pa-bg: #F8F9FA;
+  --pa-surface: #FFFFFF;
+  --pa-surface-elevated: #FDFDFE;
+  --pa-surface-hover: #F8F9FA;
+  --pa-border: #DEDFE0;
+  --pa-border-subtle: #E8EAED;
+  --pa-border-focus: #1A9CD6;
+  --pa-text-primary: #111111;
+  --pa-text-secondary: #5A5C60;
+  --pa-text-muted: #88898C;
+  --header-bg: rgba(255, 255, 255, 0.94);
+  --card-media-bg: #EAECEF;
+  --cta-btn-bg: #F8F9FA;
+  --cta-btn-text: #111111;
+  --cta-btn-border: #DEDFE0;
+  --play-overlay-bg: rgba(255, 255, 255, 0.94);
+  --play-overlay-text: #111111;
+  --pill-bg: #FFFFFF;
+  --pill-border: #DEDFE0;
+  --switch-track: #E4E6EA;
+  --switch-thumb: #FFFFFF;
+  --footer-bg: #FFFFFF;
+  --footer-border: #DEDFE0;
+  --footer-divider: #F1F3F5;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 22px 38px -10px rgba(0, 0, 0, 0.14), 0 8px 18px -4px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Base Resets & Global Styles --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--pa-text-primary);
+  background-color: var(--pa-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--pa-text-primary);
+  line-height: 1.15;
+  transition: color var(--transition-normal);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button, input {
+  font-family: inherit;
+}
+
+/* --- Header / Navigation --- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--header-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--pa-border);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.header-accent-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--pa-brand-gradient);
+}
+
+.header-inner {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Header Brand Logo (Button Grouping) */
+.brand-logo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--transition-normal), background-color var(--transition-normal);
+}
+
+.brand-logo-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme="light"] .brand-logo-btn:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.brand-icon-wrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform var(--transition-smooth);
+}
+
+/* Hover effect on logo button */
+.brand-logo-btn:hover .brand-icon {
+  transform: translateY(-2px) rotate(-8deg) scale(1.1);
+}
+
+.brand-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  line-height: 0.95;
+}
+
+.brand-name-top,
+.brand-name-bottom {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pa-text-primary);
+  transition: color var(--transition-normal);
+}
+
+.brand-logo-btn:hover .brand-name-top {
+  color: var(--pa-blue);
+}
+
+.brand-logo-btn:hover .brand-name-bottom {
+  color: var(--pa-green);
+}
+
+/* Header Controls: Search, Theme Toggle, Feedback */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  color: var(--pa-text-muted);
+  pointer-events: none;
+  transition: color var(--transition-normal);
+}
+
+.search-input {
+  width: 200px;
+  height: 38px;
+  padding: 0 14px 0 38px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--pa-border);
+  background: var(--pa-surface);
+  font-size: 13px;
+  color: var(--pa-text-primary);
+  outline: none;
+  transition: width var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal), background-color var(--transition-normal);
+}
+
+.search-input::placeholder {
+  color: var(--pa-text-muted);
+}
+
+.search-input:focus {
+  width: 240px;
+  border-color: var(--pa-border-focus);
+  box-shadow: 0 0 0 3px rgba(26, 156, 214, 0.22);
+}
+
+.search-box:focus-within .search-icon {
+  color: var(--pa-border-focus);
+}
+
+/* --- Dark Mode Toggle Switch --- */
+.theme-toggle-switch {
+  position: relative;
+  width: 58px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background-color: var(--switch-track);
+  border: 1.5px solid var(--pa-border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  outline: none;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal), transform var(--transition-normal);
+}
+
+.theme-toggle-switch:hover {
+  border-color: var(--pa-gray-medium);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-switch:focus-visible {
+  box-shadow: 0 0 0 3px rgba(26, 156, 214, 0.35);
+  border-color: var(--pa-blue);
+}
+
+/* Switch Icons (Sun & Moon) */
+.switch-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity var(--transition-normal), color var(--transition-normal);
+}
+
+.switch-icon-sun {
+  color: #F9B621; /* Brand yellow */
+  opacity: 0.45;
+}
+
+.switch-icon-moon {
+  color: #1A9CD6; /* Brand blue */
+  opacity: 0.95;
+}
+
+/* Light mode icon state */
+html[data-theme="light"] .switch-icon-sun {
+  opacity: 1;
+}
+
+html[data-theme="light"] .switch-icon-moon {
+  opacity: 0.4;
+  color: var(--pa-gray-dark);
+}
+
+/* Sliding Thumb */
+.switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--switch-thumb);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  transition: transform var(--transition-smooth), background-color var(--transition-normal);
+}
+
+/* In Dark Mode (Default): thumb moves to right side */
+html[data-theme="dark"] .switch-thumb {
+  transform: translateX(24px);
+  background: linear-gradient(135deg, #FFFFFF, #DEDFE0);
+}
+
+/* In Light Mode: thumb is on the left side */
+html[data-theme="light"] .switch-thumb {
+  transform: translateX(0);
+  background-color: #FFFFFF;
+}
+
+.header-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--pa-border);
+  background: var(--pa-surface);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pa-text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.header-link-btn:hover {
+  background: var(--pa-text-primary);
+  color: var(--pa-bg);
+  border-color: var(--pa-text-primary);
+  transform: translateY(-1px);
+}
+
+/* --- Main Layout --- */
+.main-content {
+  flex: 1;
+  max-width: var(--container-max-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* Hero Section */
+.hero-section {
+  margin-bottom: 40px;
+}
+
+.hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pa-text-secondary);
+  margin-bottom: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.hero-pill-badge .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--pa-green);
+  box-shadow: 0 0 0 3px rgba(98, 186, 72, 0.25);
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(44px, 5vw, 54px); /* Brand guide spec: 54pt negotiable 10pt */
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--pa-text-primary);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+/* Iconic Brand Guide Accent Bar (under headings) */
+.brand-accent-line {
+  width: 88px;
+  height: 5px;
+  background: var(--pa-brand-gradient);
+  border-radius: var(--radius-pill);
+  margin-bottom: 16px;
+}
+
+.hero-description {
+  font-size: 16px; /* Brand guide body spec ~13pt */
+  color: var(--pa-text-secondary);
+  max-width: 620px;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Games Grid & Interactive Card Groupings (Buttons)
+   ========================================================================== */
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 32px;
+}
+
+/* The Card: A grouping of image and text functioning as an interactive button */
+.game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--pa-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--pa-border);
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-smooth),
+              box-shadow var(--transition-smooth),
+              border-color var(--transition-normal),
+              background-color var(--transition-normal);
+  outline: none;
+}
+
+/* Focus outline for accessibility */
+.game-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(26, 156, 214, 0.45), var(--shadow-hover);
+  border-color: var(--pa-blue);
+}
+
+/* Top Accent Strip: Brand Gradient reveals on card hover */
+.card-accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: var(--pa-brand-gradient);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-smooth);
+  z-index: 10;
+}
+
+/* Thumbnail / Media Container */
+.card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--card-media-bg);
+  overflow: hidden;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform var(--transition-smooth), filter var(--transition-normal);
+}
+
+/* Floating Play Button Overlay on Thumbnail */
+.card-play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  opacity: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  background: var(--play-overlay-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--play-overlay-text);
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  transition: opacity var(--transition-smooth), transform var(--transition-smooth);
+}
+
+.play-icon-triangle {
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 10px solid var(--play-overlay-text);
+  transition: border-left-color var(--transition-normal);
+}
+
+/* Card Body Content */
+.card-body {
+  padding: 22px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+  background: var(--pa-surface);
+  transition: background-color var(--transition-normal);
+}
+
+.card-info {
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--pa-text-primary);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+  transition: color var(--transition-normal);
+}
+
+.card-description {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--pa-text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Card Bottom Action Button / Pill */
+.card-cta-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--cta-btn-border);
+  background-color: var(--cta-btn-bg);
+  color: var(--cta-btn-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition-smooth);
+}
+
+.cta-arrow {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  transition: transform var(--transition-smooth);
+}
+
+/* ==========================================================================
+   HOVER EFFECTS ON GROUPINGS (Game Cards Functioning as Buttons)
+   ========================================================================== */
+
+.game-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--pa-gray-medium);
+}
+
+/* Reveal Brand Gradient Bar on Top Edge */
+.game-card:hover .card-accent-bar {
+  transform: scaleX(1);
+}
+
+/* Smooth Image Scale and Brightness Enhancement */
+.game-card:hover .card-img {
+  transform: scale(1.06);
+  filter: brightness(1.05);
+}
+
+/* Play Button Overlay Bloom */
+.game-card:hover .card-play-overlay {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Title Color Accent Shift to Brand Blue on hover */
+.game-card:hover .card-title {
+  color: var(--pa-blue);
+}
+
+/* Bottom CTA Button Transforms into Brand Gradient Button */
+.game-card:hover .card-cta-btn {
+  background: var(--pa-brand-gradient);
+  color: #FFFFFF;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(98, 186, 72, 0.3);
+}
+
+.game-card:hover .cta-arrow {
+  transform: translateX(5px);
+}
+
+/* Active / Pressed state on the grouping */
+.game-card:active {
+  transform: translateY(-3px) scale(0.99);
+  box-shadow: var(--shadow-md);
+}
+
+/* Empty State (when search has no matches) */
+.empty-state {
+  display: none;
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--pa-surface);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--pa-border);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.empty-state.visible {
+  display: block;
+}
+
+.empty-state-title {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: var(--pa-text-primary);
+}
+
+.empty-state-desc {
+  font-size: 14px;
+  color: var(--pa-text-muted);
+}
+
+/* --- Footer --- */
+.site-footer {
+  margin-top: auto;
+  background: var(--footer-bg);
+  border-top: 1px solid var(--footer-border);
+  padding: 32px 24px;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.footer-inner {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.footer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.footer-brand-title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pa-text-primary);
+}
+
+.footer-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 13px;
+  color: var(--pa-text-muted);
+}
+
+.footer-link {
+  transition: color var(--transition-normal);
+}
+
+.footer-link:hover {
+  color: var(--pa-text-primary);
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--footer-divider);
+  font-size: 12px;
+  color: var(--pa-text-muted);
+}
+
+.footer-tagline {
+  font-size: 12px;
+  color: var(--pa-text-muted);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  .header-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .header-actions {
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .search-box {
+    flex-grow: 1;
+    min-width: 180px;
+  }
+
+  .main-content {
+    padding: 32px 16px 60px;
+  }
+
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

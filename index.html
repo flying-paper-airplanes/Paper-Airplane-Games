@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Airplane — Games</title>
+    <meta name="description" content="Paper Airplane — Minimalist unblocked games portal. Fast, clean, accessible anywhere.">
+    <link rel="icon" type="image/x-icon" href="images/palogo.ico">
+
+    <!-- Theme initialization (Dark Mode default) -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('pa-theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
+    <!-- Google Fonts: Rajdhani (Headings) and Rubik (Body) per Brand Guide -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Rubik:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="stlye.css">
+</head>
+<body>
+    <!-- Top Site Header -->
+    <header class="site-header">
+        <div class="header-accent-bar" aria-hidden="true"></div>
+        <div class="header-inner">
+            <!-- Full Brand Logo Button Grouping -->
+            <a href="index.html" class="brand-logo-btn" title="Paper Airplane Home" aria-label="Paper Airplane Home">
+                <div class="brand-icon-wrapper">
+                    <img src="images/palogo.png" alt="Paper Airplane Logo" class="brand-icon">
+                </div>
+                <div class="brand-text-wrapper">
+                    <span class="brand-name-top">Paper</span>
+                    <span class="brand-name-bottom">Airplane</span>
+                </div>
+            </a>
+
+            <!-- Header Controls: Search, Theme Switcher & Feedback -->
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="gameSearch" class="search-input" placeholder="Search games..." aria-label="Search games">
+                </div>
+
+                <!-- Dark Mode Toggle Switch -->
+                <button id="themeToggle" class="theme-toggle-switch" role="switch" aria-checked="true" aria-label="Toggle dark mode" title="Switch to light mode">
+                    <span class="switch-icon switch-icon-sun" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </span>
+                    <span class="switch-thumb"></span>
+                    <span class="switch-icon switch-icon-moon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </span>
+                </button>
+
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdX13iatWHTgsPKLBYJ08aoGOssAaFrVSPx1VJys-O2SK60gA/viewform" target="_blank" rel="noopener noreferrer" class="header-link-btn" title="Submit feedback or bug report">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Feedback</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-pill-badge">
+                <span class="status-dot"></span>
+                <span>Unblocked Web Portal</span>
+            </div>
+            <h1 class="hero-title">Games</h1>
+            <div class="brand-accent-line" aria-hidden="true"></div>
+            <p class="hero-description">
+                A clean, minimalist collection of instant web games designed for seamless play anywhere.
+            </p>
+        </section>
+
+        <!-- Games Grid: Interactive Button Groupings -->
+        <div class="games-grid" id="gamesGrid">
+            <!-- Game Card 1: Flappy Max -->
+            <a class="game-card" href="flappymax/index.html" data-title="Flappy Max">
+                <div class="card-accent-bar" aria-hidden="true"></div>
+                <div class="card-media">
+                    <img class="card-img" src="images/flappymaxcover.png" alt="Flappy Max cover artwork" loading="lazy">
+                    <div class="card-play-overlay" aria-hidden="true">
+                        <span class="play-icon-triangle"></span>
+                        <span>Play Now</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="card-info">
+                        <h2 class="card-title">Flappy Max</h2>
+                        <p class="card-description">Play flappy bird as the one and only, Max Hill.</p>
+                    </div>
+                    <div class="card-cta-btn">
+                        <span>Launch Game</span>
+                        <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Game Card 2: MotoX3M -->
+            <a class="game-card" href="motox3m/MotoX3MUnblocked.github.io/index.html" data-title="MotoX3M">
+                <div class="card-accent-bar" aria-hidden="true"></div>
+                <div class="card-media">
+                    <img class="card-img" src="images/motox3m.avif" alt="MotoX3M cover artwork" loading="lazy">
+                    <div class="card-play-overlay" aria-hidden="true">
+                        <span class="play-icon-triangle"></span>
+                        <span>Play Now</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="card-info">
+                        <h2 class="card-title">MotoX3M</h2>
+                        <p class="card-description">Play the classic motorbike obstacle and stunt racing game.</p>
+                    </div>
+                    <div class="card-cta-btn">
+                        <span>Launch Game</span>
+                        <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Game Card 3: Territorial.io -->
+            <a class="game-card" href="territorialio/index.html" data-title="Territorial.io">
+                <div class="card-accent-bar" aria-hidden="true"></div>
+                <div class="card-media">
+                    <img class="card-img" src="images/territorial.jpg" alt="Territorial.io cover artwork" loading="lazy">
+                    <div class="card-play-overlay" aria-hidden="true">
+                        <span class="play-icon-triangle"></span>
+                        <span>Play Now</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="card-info">
+                        <h2 class="card-title">Territorial.io</h2>
+                        <p class="card-description">Compete against players and conquer territory in real time.</p>
+                    </div>
+                    <div class="card-cta-btn">
+                        <span>Launch Game</span>
+                        <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Game Card 4: Openfront -->
+            <a class="game-card" href="FrontWars-main/FrontWars-main/index.html" data-title="Openfront">
+                <div class="card-accent-bar" aria-hidden="true"></div>
+                <div class="card-media">
+                    <img class="card-img" src="images/openfrontcover.avif" alt="Openfront cover artwork" loading="lazy">
+                    <div class="card-play-overlay" aria-hidden="true">
+                        <span class="play-icon-triangle"></span>
+                        <span>Play Now</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="card-info">
+                        <h2 class="card-title">Openfront</h2>
+                        <p class="card-description">Multiplayer frontline battles and territorial tactical conquest.</p>
+                    </div>
+                    <div class="card-cta-btn">
+                        <span>Launch Game</span>
+                        <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Empty State for Search -->
+        <div class="empty-state" id="emptyState">
+            <h3 class="empty-state-title">No games found</h3>
+            <p class="empty-state-desc">Try searching with different keywords.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <img src="images/palogo.png" alt="Paper Airplane" class="footer-logo-img">
+                    <span class="footer-brand-title">Paper Airplane</span>
+                </div>
+                <nav class="footer-nav" aria-label="Footer Navigation">
+                    <a href="index.html" class="footer-link">Home</a>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdX13iatWHTgsPKLBYJ08aoGOssAaFrVSPx1VJys-O2SK60gA/viewform" target="_blank" rel="noopener noreferrer" class="footer-link">Report an Issue</a>
+                </nav>
+            </div>
+            <div class="footer-bottom">
+                <span class="footer-tagline">Paper Airplane — Designed for secure, accessible communication and play.</span>
+                <span>Minimalist Web Edition</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts: Search & Dark Mode Switch -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher Logic
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+
+            function updateThemeUI(theme) {
+                const isDark = theme === 'dark';
+                themeToggle.setAttribute('aria-checked', isDark ? 'true' : 'false');
+                themeToggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+
+            // Sync toggle state with current data-theme
+            const currentTheme = html.getAttribute('data-theme') || 'dark';
+            updateThemeUI(currentTheme);
+
+            themeToggle.addEventListener('click', () => {
+                const activeTheme = html.getAttribute('data-theme') || 'dark';
+                const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('pa-theme', newTheme);
+                updateThemeUI(newTheme);
+            });
+
+            // Live Search
+            const searchInput = document.getElementById('gameSearch');
+            const cards = Array.from(document.querySelectorAll('.game-card'));
+            const emptyState = document.getElementById('emptyState');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.trim().toLowerCase();
+                    let visibleCount = 0;
+
+                    cards.forEach(card => {
+                        const title = (card.getAttribute('data-title') || '').toLowerCase();
+                        const desc = (card.querySelector('.card-description')?.textContent || '').toLowerCase();
+                        const matches = !query || title.includes(query) || desc.includes(query);
+
+                        card.style.display = matches ? 'flex' : 'none';
+                        if (matches) visibleCount++;
+                    });
+
+                    emptyState.classList.toggle('visible', visibleCount === 0);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
