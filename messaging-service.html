@@ -3,9 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Airplane — Private E2EE Messaging</title>
+    <title>Paper Airplane - Messages</title>
+    <script>
+        const originalTitle = document.title;
+        const awayTitle = "Classes";
+
+    // When the user switches away from the tab
+        window.addEventListener('blur', () => {
+        document.title = awayTitle;
+    });
+
+    // When the user comes back to the tab
+    window.addEventListener('focus', () => {
+    document.title = originalTitle;
+    });
+    </script>
     <meta name="description" content="Zero-knowledge, peer-to-peer end-to-end encrypted messaging service. Keys never leave your browser.">
-    <link rel="icon" type="image/x-icon" href="images/palogo.ico">
+    <link id="favicon" rel="icon" type="image/x-icon" href="images/palogo.ico">
+    <script>
+        (() => {
+            const inactiveIcon = 'images/bb9_favicon.ico';
+            const activeIcon = 'images/palogo.ico';
+
+            function setFavicon(icon) {
+                const cacheBuster = `?v=${new Date().getTime()}`;
+                let link = document.querySelector("link[rel*='icon']");
+                const newLink = document.createElement('link');
+                newLink.id = 'favicon';
+                newLink.rel = 'icon';
+                newLink.type = 'image/x-icon';
+                newLink.href = icon + cacheBuster;
+                if (link && link.parentNode) {
+                    link.parentNode.replaceChild(newLink, link);
+                } else {
+                    document.head.appendChild(newLink);
+                }
+            }
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    setFavicon(inactiveIcon);
+                } else {
+                    setFavicon(activeIcon);
+                }
+            });
+
+            window.addEventListener('blur', () => {
+                setFavicon(inactiveIcon);
+            });
+
+            window.addEventListener('focus', () => {
+                setFavicon(activeIcon);
+            });
+        })();
+    </script>
 
     <!-- Theme initialization (Dark Mode default) -->
     <script>
