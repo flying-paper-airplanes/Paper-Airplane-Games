@@ -576,49 +576,36 @@
     <main class="chat-app-container">
         <!-- VIEW 1: LOBBY / SETUP -->
         <div id="lobbyView" class="lobby-panel">
-            <div class="lobby-badge">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                <span>Zero-Knowledge E2EE</span>
-            </div>
-            <h1 class="lobby-title">Private Secure Chat</h1>
+            <h1 class="lobby-title">Secure Chat</h1>
             <p class="lobby-desc">
-                Messages are encrypted directly in your browser using <strong>AES-GCM-256</strong> before transmission. The relay server cannot read your messages or access your keys.
+                Messages are end-to-end encrypted and cannot be read by anyone, including the server. Messages are deleted on room leave. Messages sent before join or after leave will not be visible.
             </p>
 
             <form id="joinForm" onsubmit="return false;">
                 <div class="form-group">
-                    <label class="form-label" for="usernameInput">Your Handle / Nickname</label>
-                    <input type="text" id="usernameInput" class="form-input" placeholder="e.g. Alice" required maxlength="30">
+                    <label class="form-label" for="usernameInput">Nickname</label>
+                    <input type="text" id="usernameInput" class="form-input" placeholder="Nickname" required maxlength="30">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="roomIdInput">Room Name or ID</label>
+                    <label class="form-label" for="roomIdInput">Room ID</label>
                     <div class="input-group-row">
-                        <input type="text" id="roomIdInput" class="form-input" placeholder="e.g. secret-room-88" required maxlength="64">
+                        <input type="text" id="roomIdInput" class="form-input" placeholder="e.g. cool-room" required maxlength="64">
                         <button type="button" id="btnRandomRoom" class="btn-secondary-action" title="Generate random room">
-                            🎲 Random
+                            Random
                         </button>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="keyInput">Encryption Key / Passphrase</label>
+                    <label class="form-label" for="keyInput">Room Password</label>
                     <div class="input-group-row">
-                        <input type="password" id="keyInput" class="form-input" placeholder="Shared secret passphrase or random 256-bit key" required>
+                        <input type="password" id="keyInput" class="form-input" placeholder="Enter shared password" required>
                         <button type="button" id="btnGenerateKey" class="btn-secondary-action" title="Generate fresh 256-bit AES key">
-                            🔑 Generate
+                            Generate
                         </button>
                     </div>
-                    <span class="form-hint">Anyone with this room name and passphrase can decrypt messages.</span>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="serverUrlInput">Ubuntu Relay Server URL (WSS)</label>
-                    <input type="text" id="serverUrlInput" class="form-input" placeholder="wss://relay.yourdomain.com:8080" required>
-                    <span class="form-hint">Your self-hosted Ubuntu WebSocket relay address (use <code>ws://localhost:8080</code> for local dev).</span>
+                    <span class="form-hint">Others will need room id and password to join and view messages.</span>
                 </div>
 
                 <button type="button" id="btnJoinRoom" class="btn-primary-action">
@@ -630,9 +617,6 @@
                 </button>
             </form>
 
-            <div class="security-callout">
-                🛡️ <strong>Zero-Trust Guarantee:</strong> The encryption key is held only in browser memory and in the URL hash (<code>#...</code>). The hash is never sent to GitHub Pages or to the relay server.
-            </div>
         </div>
 
         <!-- VIEW 2: ACTIVE CHAT ROOM -->
@@ -659,7 +643,7 @@
                         <span>Copy Invite Link</span>
                     </button>
                     <button type="button" id="btnShowFingerprint" class="chat-action-btn" title="View safety fingerprint">
-                        <span>🔍 Fingerprint</span>
+                        <span>Fingerprint</span>
                     </button>
                     <button type="button" id="btnLeaveRoom" class="chat-action-btn danger" title="Leave room and wipe key from memory">
                         <span>Leave</span>
@@ -676,7 +660,7 @@
 
             <!-- Chat Input Bar -->
             <form id="chatForm" class="chat-input-bar" onsubmit="return false;">
-                <input type="text" id="chatMessageInput" class="chat-text-input" placeholder="Type an encrypted message..." autocomplete="off">
+                <input type="text" id="chatMessageInput" class="chat-text-input" placeholder="Type message..." autocomplete="off">
                 <button type="submit" id="btnSendMessage" class="chat-send-btn">
                     <span>Send</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -817,6 +801,8 @@
             }
         };
 
+        const RELAY_SERVER_URL = 'https://relay.paper-airplane.fyi';
+
         // --- Application State ---
         const AppState = {
             ws: null,
@@ -824,7 +810,7 @@
             fingerprint: '',
             username: '',
             roomId: '',
-            serverUrl: '',
+            serverUrl: RELAY_SERVER_URL,
             reconnectTimer: null
         };
 
@@ -835,7 +821,6 @@
             usernameInput: document.getElementById('usernameInput'),
             roomIdInput: document.getElementById('roomIdInput'),
             keyInput: document.getElementById('keyInput'),
-            serverUrlInput: document.getElementById('serverUrlInput'),
             btnRandomRoom: document.getElementById('btnRandomRoom'),
             btnGenerateKey: document.getElementById('btnGenerateKey'),
             btnJoinRoom: document.getElementById('btnJoinRoom'),
@@ -933,7 +918,8 @@
             appendSystemNotice(`Connecting to relay: ${AppState.serverUrl}...`);
 
             try {
-                AppState.ws = new WebSocket(AppState.serverUrl);
+                const wsUrl = AppState.serverUrl.replace(/^http/, 'ws');
+                AppState.ws = new WebSocket(wsUrl);
             } catch (err) {
                 updateConnectionUI('disconnected');
                 appendSystemNotice(`Failed to open WebSocket: ${err.message}`);
@@ -1040,7 +1026,6 @@
             const username = dom.usernameInput.value.trim();
             const roomId = dom.roomIdInput.value.trim();
             const secret = dom.keyInput.value.trim();
-            const serverUrl = dom.serverUrlInput.value.trim();
 
             if (!username) {
                 showToast('Please enter your nickname / handle');
@@ -1057,19 +1042,13 @@
                 dom.keyInput.focus();
                 return;
             }
-            if (!serverUrl) {
-                showToast('Please enter your Ubuntu relay server URL');
-                dom.serverUrlInput.focus();
-                return;
-            }
 
             // Save persistent preferences
             localStorage.setItem('pa_chat_username', username);
-            localStorage.setItem('pa_chat_server', serverUrl);
 
             AppState.username = username;
             AppState.roomId = roomId;
-            AppState.serverUrl = serverUrl;
+            AppState.serverUrl = RELAY_SERVER_URL;
 
             showToast('Deriving encryption key...');
 
@@ -1078,8 +1057,8 @@
                 AppState.activeKey = await CryptoEngine.deriveKey(secret, roomId);
                 AppState.fingerprint = await CryptoEngine.computeFingerprint(AppState.activeKey);
 
-                // Update URL hash with room, key, and server for shareability (hash never touches server!)
-                window.location.hash = `room=${encodeURIComponent(roomId)}&key=${encodeURIComponent(secret)}&server=${encodeURIComponent(serverUrl)}`;
+                // Update URL hash with room and key for shareability (hash never touches server!)
+                window.location.hash = `room=${encodeURIComponent(roomId)}&key=${encodeURIComponent(secret)}`;
 
                 // Switch UI views
                 dom.lobbyView.style.display = 'none';
@@ -1111,17 +1090,15 @@
 
             dom.chatView.style.display = 'none';
             dom.lobbyView.style.display = 'block';
-            showToast('Left room. Session key wiped from memory.');
+            showToast('Left room. Session wiped.');
         }
 
         // --- Event Listeners & Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => {
             // Restore saved preferences
             const savedUsername = localStorage.getItem('pa_chat_username') || '';
-            const savedServer = localStorage.getItem('pa_chat_server') || 'ws://localhost:8080';
 
             dom.usernameInput.value = savedUsername;
-            dom.serverUrlInput.value = savedServer;
 
             // Generate Random Room ID helper
             dom.btnRandomRoom.addEventListener('click', () => {
@@ -1196,7 +1173,6 @@
             if (hashParams) {
                 if (hashParams.room) dom.roomIdInput.value = hashParams.room;
                 if (hashParams.key) dom.keyInput.value = hashParams.key;
-                if (hashParams.server) dom.serverUrlInput.value = hashParams.server;
                 showToast('Loaded room & encryption settings from invite link!');
             }
         });
